@@ -27,7 +27,8 @@ This is my base model that extends CI_Model and is extended from other Model.
 - `assign` Assign item to class (without loading it)
 - `unassign` Clears the ID assignment
 - `get_id` Return the current item ID
-- `exists` Check if the item exists (with a db query)
+- `assigned` Verify if items is assigned (without a db query).
+- `exists` Verify if the item exists (with a db query)
 - `assign_by` Select item ID from a clause
 - `get` Select assigned item data
 - `get_by` Select item data from clause

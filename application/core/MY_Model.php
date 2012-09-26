@@ -4,7 +4,7 @@
  * Base model to extends default CI Model
  * @author	Luigi Mozzillo <luigi@innato.it>
  * @link	http://innato.it
- * @version	1.0
+ * @version	1.01
  * @extends CI_Model
  *
  * This program is free software: you can redistribute it and/or modify
@@ -97,7 +97,19 @@ class MY_Model extends CI_Model {
 	// --------------------------------------------------------------------------
 
 	/**
-	 * Check if the item exists (with a db query).
+	 * Verify if items is assigned (without a db query).
+	 *
+	 * @access public
+	 * @return void
+	 */
+	public function assigned() {
+		return $this->get_id() ? TRUE : FALSE;
+	}
+
+	// --------------------------------------------------------------------------
+
+	/**
+	 * Verify if the item exists (with a db query).
 	 *
 	 * @access public
 	 * @return void
