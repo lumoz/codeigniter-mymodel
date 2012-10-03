@@ -4,7 +4,7 @@
  * Base model to extends default CI Model
  * @author	Luigi Mozzillo <luigi@innato.it>
  * @link	http://innato.it
- * @version	1.01
+ * @version	1.0.3
  * @extends CI_Model
  *
  * This program is free software: you can redistribute it and/or modify
@@ -136,7 +136,7 @@ class MY_Model extends CI_Model {
 		$this->db->select($this->primary_key);
 		$row = $this->get_by($where, $escape = TRUE);
 		$this->assign(isset($row->{$this->primary_key}) ? $row->{$this->primary_key} : 0);
-		return $this->exists();
+		return $this->assigned();
 	}
 
 	// --------------------------------------------------------------------------
@@ -216,7 +216,7 @@ class MY_Model extends CI_Model {
 	private function _run_before_callbacks($type, $params = array()) {
 		$name = 'before_' . $type;
 		if (!empty($name)) {
-			$data = (isset($params[0])) ? $params : array();
+			$data = (isset($params[0])) ? $params[0] : array();
 			foreach ($this->$name as $method)
 				$data = call_user_func_array(array($this, $method), $params);
 		}
@@ -236,7 +236,7 @@ class MY_Model extends CI_Model {
 	private function _run_after_callbacks($type, $params = array()) {
 		$name = 'after_' . $type;
 		if (!empty($name)) {
-			$data = (isset($params[0])) ? $params : array();
+			$data = (isset($params[0])) ? $params[0] : array();
 			foreach ($this->$name as $method)
 				$data = call_user_func_array(array($this, $method), $params);
 		}
@@ -301,11 +301,10 @@ class MY_Model extends CI_Model {
 	 * @return void
 	 */
 	public function update_by($data, $where = array()) {
-		$data = $this->_run_before_callbacks('update', array($data, $where));
+		$data = $this->_run_before_callbacks('update', array($data));
 		$this->db->where($where);
-		$result = $this->db->set($data)
-  			->update($this->_table);
-		$this->_run_after_callbacks('update', array($data, $where, $result));
+		$result = $this->db->update($this->_table, $data);
+		$this->_run_after_callbacks('update', array($data, $result));
 		return $result;
 	}
 
