@@ -4,7 +4,7 @@
  * Base model to extends default CI Model
  * @author	Luigi Mozzillo <luigi@innato.it>
  * @link	http://innato.it
- * @version	1.0.3
+ * @version	1.0.4
  * @extends CI_Model
  *
  * This program is free software: you can redistribute it and/or modify
@@ -246,6 +246,21 @@ class MY_Model extends CI_Model {
 	// --------------------------------------------------------------------------
 
 	/**
+	 * Count all results from the table adding eventually a where clause.
+	 *
+	 * @access public
+	 * @param mixed $where (default: NULL)
+	 * @return void
+	 */
+	public function count($where = NULL) {
+		if (!is_null($where))
+			$this->db->where($where);
+		return $this->db->count_all_results($this->_table);
+	}
+
+	// --------------------------------------------------------------------------
+
+	/**
 	 * Delete current assigned item.
 	 *
 	 * @access public
@@ -319,7 +334,7 @@ class MY_Model extends CI_Model {
 	 */
 	public function insert($data) {
 		$data = $this->_run_before_callbacks('create', array($data));
-			$this->db->insert($this->_table, $data);
+		$this->db->insert($this->_table, $data);
 		$this->_run_after_callbacks('create', array($data, $this->db->insert_id()));
 		return $this->db->insert_id();
 	}

@@ -41,6 +41,7 @@ This is my base model that extends CI_Model and is extended from other Model.
 - `insert` Insert item in DB
 - `set_message` Set internal message
 - `get_message` Return internal message
+- `count` Count all results from the table adding eventually a where clause
 
 ###How to work
 
@@ -100,7 +101,18 @@ This is my base model that extends CI_Model and is extended from other Model.
 			return $book_data;
 		}
 
-9. And so on.
+9. Hot to count table results:
+
+		$n = $this->yourmodel->count();
+		
+	or
+	
+		$n = $this->yourmodel->count(array(
+			'status' => 'enabled'
+			, 'verified' => 1
+		));
+
+10. And so on.
 
 
 Inspired by [codeigniter-base-model](https://github.com/jamierumbelow/codeigniter-base-model) of [Jamie Rumbelow](https://github.com/jamierumbelow).
