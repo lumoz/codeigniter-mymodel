@@ -4,7 +4,7 @@
  * Base model to extends default CI Model
  * @author	Luigi Mozzillo <luigi@innato.it>
  * @link	http://innato.it
- * @version	1.0.4
+ * @version	1.0.5
  * @extends CI_Model
  *
  * This program is free software: you can redistribute it and/or modify
@@ -199,8 +199,8 @@ class MY_Model extends CI_Model {
 	 * @access public
 	 * @return void
 	 */
-	public function get_table() {
-		return $this->_table;
+	public function get_table($as = NULL) {
+		return $this->_table . ( ! is_null($as) ? ' AS '. $as : '');
 	}
 
 	// --------------------------------------------------------------------------
