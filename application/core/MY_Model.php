@@ -4,7 +4,7 @@
  * Base model to extends default CI Model
  * @author	Luigi Mozzillo <luigi@innato.it>
  * @link	http://innato.it
- * @version	1.0.5
+ * @version	1.1
  * @extends CI_Model
  *
  * This program is free software: you can redistribute it and/or modify
@@ -119,7 +119,7 @@ class MY_Model extends CI_Model {
 			return FALSE;
 		$this->db->select($this->primary_key);
 		$res = $this->get();
-		return !empty($res) ? TRUE : FALSE;
+		return ! empty($res);
 	}
 
 	// --------------------------------------------------------------------------
@@ -135,7 +135,11 @@ class MY_Model extends CI_Model {
 	public function assign_by($where, $escape = TRUE) {
 		$this->db->select($this->primary_key);
 		$row = $this->get_by($where, $escape = TRUE);
-		$this->assign(isset($row->{$this->primary_key}) ? $row->{$this->primary_key} : 0);
+		$this->assign(
+			isset($row->{$this->primary_key})
+				? $row->{$this->primary_key}
+				: 0
+		);
 		return $this->assigned();
 	}
 
@@ -187,7 +191,7 @@ class MY_Model extends CI_Model {
 			->get($this->_table)
 			->result();
 		foreach ($result as &$row)
-			$row = $this->_run_after_callbacks('get', array( $row ));
+			$row = $this->_run_after_callbacks('get', array($row));
 		return $result;
 	}
 
@@ -215,7 +219,7 @@ class MY_Model extends CI_Model {
 	 */
 	private function _run_before_callbacks($type, $params = array()) {
 		$name = 'before_' . $type;
-		if (!empty($name)) {
+		if ( ! empty($name)) {
 			$data = (isset($params[0])) ? $params[0] : array();
 			foreach ($this->$name as $method)
 				$data = call_user_func_array(array($this, $method), $params);
@@ -235,7 +239,7 @@ class MY_Model extends CI_Model {
 	 */
 	private function _run_after_callbacks($type, $params = array()) {
 		$name = 'after_' . $type;
-		if (!empty($name)) {
+		if ( ! empty($name)) {
 			$data = (isset($params[0])) ? $params[0] : array();
 			foreach ($this->$name as $method)
 				$data = call_user_func_array(array($this, $method), $params);
@@ -253,7 +257,7 @@ class MY_Model extends CI_Model {
 	 * @return void
 	 */
 	public function count($where = NULL) {
-		if (!is_null($where))
+		if ( ! is_null($where))
 			$this->db->where($where);
 		return $this->db->count_all_results($this->_table);
 	}
@@ -286,7 +290,6 @@ class MY_Model extends CI_Model {
 		$result = $this->db->where($where)
   			->delete($this->_table);
 		$this->_run_after_callbacks('delete', array($where, $result));
-
 		return $result;
 	}
 
@@ -317,8 +320,8 @@ class MY_Model extends CI_Model {
 	 */
 	public function update_by($data, $where = array()) {
 		$data = $this->_run_before_callbacks('update', array($data));
-		$this->db->where($where);
-		$result = $this->db->update($this->_table, $data);
+		$result = $this->db->where($where)
+			->update($this->_table, $data);
 		$this->_run_after_callbacks('update', array($data, $result));
 		return $result;
 	}
@@ -337,6 +340,37 @@ class MY_Model extends CI_Model {
 		$this->db->insert($this->_table, $data);
 		$this->_run_after_callbacks('create', array($data, $this->db->insert_id()));
 		return $this->db->insert_id();
+	}
+
+	// --------------------------------------------------------------------------
+
+	/**
+	 * Increase field value for assigned item.
+	 *
+	 * @access public
+	 * @param mixed $field
+	 * @return void
+	 */
+	public function increase($field) {
+		return $this->increase_by($field, array(
+			$this->primary_key => $this->_id
+		));
+	}
+
+	// --------------------------------------------------------------------------
+
+	/**
+	 * Increase field value form a clause.
+	 *
+	 * @access public
+	 * @param mixed $field
+	 * @param array $where (default: array())
+	 * @return void
+	 */
+	public function increase_by($field, $where = array()) {
+		return $this->db->set($field, $field .' + 1', FALSE)
+			->where($where)
+			->update($this->_table);
 	}
 
 	// --------------------------------------------------------------------------

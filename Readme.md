@@ -42,6 +42,8 @@ This is my base model that extends CI_Model and is extended from other Model.
 - `set_message` Set internal message
 - `get_message` Return internal message
 - `count` Count all results from the table adding eventually a where clause
+- `increase` Increase field value for assigned item
+- `increase_by` Increase field value form a clause
 
 ###How to work
 
@@ -77,7 +79,7 @@ This is my base model that extends CI_Model and is extended from other Model.
 5. How to select all items:
 
 		$this->yourmodel->gets();
-	
+
 6. How to select all enabled items:
 
 		$this->yourmodel->gets(array(
@@ -93,9 +95,9 @@ This is my base model that extends CI_Model and is extended from other Model.
 8. Hot to assign after insert callback:
 
 	In Your_Model add this variable:
-	
+
 		public $before_insert = array( 'your_method' );
-		
+
 		protected function your_method($boot_data) {
 			// work with $book_data
 			return $book_data;
@@ -104,15 +106,26 @@ This is my base model that extends CI_Model and is extended from other Model.
 9. Hot to count table results:
 
 		$n = $this->yourmodel->count();
-		
+
 	or
-	
+
 		$n = $this->yourmodel->count(array(
 			'status' => 'enabled'
 			, 'verified' => 1
 		));
 
-10. And so on.
+10. How to increase a table field:
+
+		$this->yourmodel->assign($item_id)
+			->increase('read_counter');
+
+	or
+
+		$this->yourmodel->increase_by('read_counter', array(
+			'category'	=> $category_id
+		));
+
+11 And so on.
 
 
 Inspired by [codeigniter-base-model](https://github.com/jamierumbelow/codeigniter-base-model) of [Jamie Rumbelow](https://github.com/jamierumbelow).
