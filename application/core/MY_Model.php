@@ -4,7 +4,7 @@
  * Base model to extends default CI Model
  * @author	Luigi Mozzillo <luigi@innato.it>
  * @link	http://innato.it
- * @version	1.2
+ * @version	1.3
  * @extends CI_Model
  *
  * This program is free software: you can redistribute it and/or modify
@@ -400,11 +400,11 @@ class MY_Model extends CI_Model {
 	 *
 	 * @access public
 	 * @param mixed $field
-	 * @param int $length (default: 8)
 	 * @param string $type (default: 'alnum')
+	 * @param int $length (default: 8)
 	 * @return void
 	 */
-	public function get_unique($field, $length = 8, $type = 'alnum') {
+	public function random_unique($field, $type = 'alnum', $length = 8) {
 		do {
 			$unique = random_string($type, $length);
 		} while( ! $this->unique($field, $unique));

@@ -45,7 +45,7 @@ This is my base model that extends CI_Model and is extended from other Model.
 - `increase` Increase field value for assigned item
 - `increase_by` Increase field value form a clause
 - `unique` Check if a $value is unique in a $field; if an item is assigned, exclude it
-- `get_unique` Generate and return a random and unique string
+- `random_unique` Generate and return a random and unique string
 
 ###How to work
 
@@ -132,9 +132,9 @@ This is my base model that extends CI_Model and is extended from other Model.
 		if ( ! $this->yourmodel->unique('email', 'your@email.it')) {
 			return FALSE;
 		}
-	
+
 	or
-	
+
 		$this->yourmodel->assign($user_id);
 		if ( ! $this->yourmodel->unique('slug', 'your-post-title')) {
 			return FALSE;
@@ -142,9 +142,9 @@ This is my base model that extends CI_Model and is extended from other Model.
 
 12. How to get a random and unique field:
 
-		$code = $this->yourmodel->get_unique('code');
-		$pin = $this->yourmodel->get_unique('pin', 4, 'numeric');
-		$token = $this->yourmodel->get_unique('token', 40);
+		$code = $this->yourmodel->random_unique('code');
+		$pin = $this->yourmodel->random_unique('pin', 4, 'numeric');
+		$token = $this->yourmodel->random_unique('token', 40);
 
 13. And so on.
 
