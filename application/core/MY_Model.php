@@ -4,7 +4,7 @@
  * Base model to extends default CI Model
  * @author	Luigi Mozzillo <luigi@innato.it>
  * @link	http://innato.it
- * @version	1.1
+ * @version	1.2
  * @extends CI_Model
  *
  * This program is free software: you can redistribute it and/or modify
@@ -371,6 +371,44 @@ class MY_Model extends CI_Model {
 		return $this->db->set($field, $field .' + 1', FALSE)
 			->where($where)
 			->update($this->_table);
+	}
+
+	// --------------------------------------------------------------------------
+
+	/**
+	 * Check if a $value is unique in a $field.
+	 * If an item is assigned, exclude it.
+	 *
+	 * @access public
+	 * @param mixed $field
+	 * @param mixed $value
+	 * @return void
+	 */
+	public function unique($field, $value) {
+		if ($this->assigned()) {
+			$this->db->where($this->primary_key  .' != ', $this->_id);
+		}
+		return ! $this->count(array(
+			$field => $value
+		));
+	}
+
+	// --------------------------------------------------------------------------
+
+	/**
+	 * Generate and return a random and unique string.
+	 *
+	 * @access public
+	 * @param mixed $field
+	 * @param int $length (default: 8)
+	 * @param string $type (default: 'alnum')
+	 * @return void
+	 */
+	public function get_unique($field, $length = 8, $type = 'alnum') {
+		do {
+			$unique = random_string($type, $length);
+		} while( ! $this->unique($field, $unique));
+		return $unique;
 	}
 
 	// --------------------------------------------------------------------------

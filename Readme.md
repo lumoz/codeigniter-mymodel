@@ -44,6 +44,8 @@ This is my base model that extends CI_Model and is extended from other Model.
 - `count` Count all results from the table adding eventually a where clause
 - `increase` Increase field value for assigned item
 - `increase_by` Increase field value form a clause
+- `unique` Check if a $value is unique in a $field; if an item is assigned, exclude it
+- `get_unique` Generate and return a random and unique string
 
 ###How to work
 
@@ -125,7 +127,26 @@ This is my base model that extends CI_Model and is extended from other Model.
 			'category'	=> $category_id
 		));
 
-11 And so on.
+11. How to check if a field is unique:
+
+		if ( ! $this->yourmodel->unique('email', 'your@email.it')) {
+			return FALSE;
+		}
+	
+	or
+	
+		$this->yourmodel->assign($user_id);
+		if ( ! $this->yourmodel->unique('slug', 'your-post-title')) {
+			return FALSE;
+		}
+
+12. How to get a random and unique field:
+
+		$code = $this->yourmodel->get_unique('code');
+		$pin = $this->yourmodel->get_unique('pin', 4, 'numeric');
+		$token = $this->yourmodel->get_unique('token', 40);
+
+13. And so on.
 
 
 Inspired by [codeigniter-base-model](https://github.com/jamierumbelow/codeigniter-base-model) of [Jamie Rumbelow](https://github.com/jamierumbelow).
