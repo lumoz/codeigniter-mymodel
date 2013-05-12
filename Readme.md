@@ -143,8 +143,8 @@ This is my base model that extends CI_Model and is extended from other Model.
 12. How to get a random and unique field:
 
 		$code = $this->yourmodel->random_unique('code');
-		$pin = $this->yourmodel->random_unique('pin', 4, 'numeric');
-		$token = $this->yourmodel->random_unique('token', 40);
+		$pin = $this->yourmodel->random_unique('pin', 'numeric', 4);
+		$token = $this->yourmodel->random_unique('token', 'sha1');
 
 13. And so on.
 
