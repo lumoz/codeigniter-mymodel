@@ -19,6 +19,7 @@ This is my base model that extends CI_Model and is extended from other Model.
 2. Define model table name in model:
 
 		protected $_table = 'your_table_name';
+		protected $_table_alias = 'your_table_alias_name';
 
 3. Use it.
 
@@ -34,6 +35,9 @@ This is my base model that extends CI_Model and is extended from other Model.
 - `get_by` Select item data from clause
 - `gets` Select (all) items from clause
 - `get_table` Return table name
+- `get_primary_key` Return primary key table field
+- `set_alias` Set table alias
+- `get_alias` Get table alias
 - `delete` Delete current assigned item
 - `delete_by` Delete item(s) from clause
 - `update` Update assigned item
@@ -46,6 +50,9 @@ This is my base model that extends CI_Model and is extended from other Model.
 - `increase_by` Increase field value form a clause
 - `unique` Check if a $value is unique in a $field; if an item is assigned, exclude it
 - `random_unique` Generate and return a random and unique string
+- `set_relation` Create a join from this to other model
+- `set_pagination` Add SQL_CALC_FOUND_ROWS to query (to perform pagination)
+- `found_rows` Return rows founded after SQL_CALC_FOUND_ROWS (to perform pagination)
 
 ###How to work
 
@@ -145,8 +152,22 @@ This is my base model that extends CI_Model and is extended from other Model.
 		$code = $this->yourmodel->random_unique('code');
 		$pin = $this->yourmodel->random_unique('pin', 'numeric', 4);
 		$token = $this->yourmodel->random_unique('token', 'sha1');
+	
+13. How to set a relation from this model to another:
 
-13. And so on.
+		$list = $this->yourmodel
+			->set_alias('y')
+			->set_relation('your_orther_model', 'y.id = o.other_id', 'o', 'right')
+			->gets();
 
+14. How to perform pagination:
 
-Inspired by [codeigniter-base-model](https://github.com/jamierumbelow/codeigniter-base-model) of [Jamie Rumbelow](https://github.com/jamierumbelow).
+		$per_page = 10;
+		$page = $this->input->get('page');
+		$data = $this->yourmodel
+			->set_pagination($per_page, $page)
+			->gets();
+		
+		$total_rows = $this->yourmodel->found_rows();
+
+15. And so on.
