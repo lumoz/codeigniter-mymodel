@@ -4,7 +4,7 @@
  * Base model to extends default CI Model
  * @author	Luigi Mozzillo <luigi@innato.it>
  * @link	http://innato.it
- * @version	1.5
+ * @version	1.6
  * @extends CI_Model
  *
  * This program is free software: you can redistribute it and/or modify
@@ -61,9 +61,9 @@ class MY_Model extends CI_Model {
 	 * @return object
 	 */
 	public function assign($id) {
-		$this->_run_before_callbacks('assign');
+		$this->_run_callbacks('before', 'assign');
 		$this->_id = $id;
-		$this->_run_after_callbacks('assign');
+		$this->_run_callbacks('after', 'assign');
 		return $this;
 	}
 
@@ -159,12 +159,12 @@ class MY_Model extends CI_Model {
 	 * @return object
 	 */
 	public function get_by($where, $escape = TRUE) {
-		$this->_run_before_callbacks('get');
+		$this->_run_callbacks('before', 'get');
 		$row = $this->db
 			->where($where, NULL, $escape)
 			->get($this->get_table())
 			->row();
-		$this->_run_after_callbacks('get', array($row));
+		$this->_run_callbacks('after', 'get', array($row));
 		return $row;
 	}
 
@@ -177,13 +177,13 @@ class MY_Model extends CI_Model {
 	 * @return array
 	 */
 	public function gets($where = array()) {
-		$this->_run_before_callbacks('get');
+		$this->_run_callbacks('before', 'get');
 		$result = $this->db
 			->where($where)
 			->get($this->get_table())
 			->result();
 		foreach ($result as & $row) {
-			$row = $this->_run_after_callbacks('get', array($row));
+			$row = $this->_run_callbacks('after', 'get', array($row));
 		}
 		return $result;
 	}
@@ -230,7 +230,7 @@ class MY_Model extends CI_Model {
 		return $this;
 	}
 
-	// --------------------------------------------------------------------------
+	// ------------------------------------------------------------------------
 
 	/**
 	 * Get table alias.
@@ -244,38 +244,36 @@ class MY_Model extends CI_Model {
 	// --------------------------------------------------------------------------
 
 	/**
-	 * Execute callback before functions.
+	 * Execute callback before/after functions.
 	 *
-	 * @param  string $type
-	 * @param  array  $params
+	 * @param  string $moment
+	 * @param  string $operation
+	 * @param  array  $parameters
 	 * @return array
 	 */
-	private function _run_before_callbacks($type, $params = array()) {
-		$name = 'before_' . $type;
-		if ( ! empty($name)) {
-			$data = (isset($params[0])) ? $params[0] : array();
-			foreach ($this->$name as $method) {
-				$data = call_user_func_array(array($this, $method), $params);
-			}
-		}
-		return $data;
-	}
+	private function _run_callbacks($moment, $operation, $parameters = array()) {
 
-	// --------------------------------------------------------------------------
+		// Take data
+		$data = isset($parameters[0]) ? $parameters[0] : array();
 
-	/**
-	 * Execute callback after functions.
-	 *
-	 * @param  string $type
-	 * @param  array  $params
-	 * @return array
-	 */
-	private function _run_after_callbacks($type, $params = array()) {
-		$name = 'after_' . $type;
-		if ( ! empty($name)) {
-			$data = (isset($params[0])) ? $params[0] : array();
-			foreach ($this->$name as $method) {
-				$data = call_user_func_array(array($this, $method), $params);
+		// Check if exists callback array
+		$callback = $moment .'_'. $operation;
+		if ( ! empty($this->$callback)) {
+			foreach ($this->$callback as $method) {
+
+				// Check if method exists
+				if (method_exists($this, $method)) {
+
+					// Execute method
+					$data = call_user_func_array(array($this, $method), $parameters);
+
+					// If return FALSE, exit
+					if ($data === FALSE)
+						return FALSE;
+
+					// Use new $data in next callback
+					$parameters = array($data);
+				}
 			}
 		}
 		return $data;
@@ -318,10 +316,11 @@ class MY_Model extends CI_Model {
 	 * @return object
 	 */
 	public function delete_by($where) {
-		$data = $this->_run_before_callbacks('delete', array($where));
-		$result = $this->db->where($where)
+		$data = $this->_run_callbacks('before', 'delete', array($where));
+		$result = $this->db
+			->where($where)
   			->delete($this->get_table());
-		$this->_run_after_callbacks('delete', array($where, $result));
+		$this->_run_callbacks('after', 'delete', array($where, $result));
 		return $result;
 	}
 
@@ -349,10 +348,27 @@ class MY_Model extends CI_Model {
 	 * @return object
 	 */
 	public function update_by($data, $where = array()) {
-		$data = $this->_run_before_callbacks('update', array($data));
-		$result = $this->db->where($where)
+
+		// Return FALSE if data is empty
+		if (empty($data))
+			return FALSE;
+
+		// Execute callback before update
+		$data = $this->_run_callbacks('before', 'update', array($data));
+
+			// If callback return FALSE, not save
+		if ($data === FALSE)
+			return FALSE;
+
+		// Update data
+		$result = $this->db
+			->where($where)
 			->update($this->get_table(), $data);
-		$this->_run_after_callbacks('update', array($data, $result));
+
+		// Execute callback after update
+		$this->_run_callbacks('after', 'update', array($data, $result));
+
+		// Return result
 		return $result;
 	}
 
@@ -365,9 +381,25 @@ class MY_Model extends CI_Model {
 	 * @return integer
 	 */
 	public function insert($data) {
-		$data = $this->_run_before_callbacks('insert', array($data));
+
+		// Return FALSE if data is empty
+		if (empty($data))
+			return FALSE;
+
+		// Execute callback before insert
+		$data = $this->_run_callbacks('before', 'insert', array($data));
+
+		// If callback return FALSE, not save
+		if ($data === FALSE)
+			return FALSE;
+
+		// Insert data
 		$this->db->insert($this->get_table(), $data);
-		$this->_run_after_callbacks('insert', array($data, $this->db->insert_id()));
+
+		// Execute callback after insert
+		$this->_run_callbacks('after', 'insert', array($data, $this->db->insert_id()));
+
+		// Return last insert id
 		return $this->db->insert_id();
 	}
 
@@ -517,10 +549,12 @@ class MY_Model extends CI_Model {
 	/**
 	 * Set internal message.
 	 *
-	 * @param string $message
+	 * @param  string $message
+	 * @return boolean
 	 */
 	public function set_message($message) {
 		$this->message = $message;
+		return FALSE;
 	}
 
 }
