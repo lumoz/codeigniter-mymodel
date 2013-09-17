@@ -4,7 +4,7 @@
  * Base model to extends default CI Model
  * @author	Luigi Mozzillo <luigi@innato.it>
  * @link	http://innato.it
- * @version	1.6
+ * @version	1.6.1
  * @extends CI_Model
  *
  * This program is free software: you can redistribute it and/or modify
@@ -319,7 +319,7 @@ class MY_Model extends CI_Model {
 		$data = $this->_run_callbacks('before', 'delete', array($where));
 		$result = $this->db
 			->where($where)
-  			->delete($this->get_table());
+  			->delete($this->_table);
 		$this->_run_callbacks('after', 'delete', array($where, $result));
 		return $result;
 	}
@@ -363,7 +363,7 @@ class MY_Model extends CI_Model {
 		// Update data
 		$result = $this->db
 			->where($where)
-			->update($this->get_table(), $data);
+			->update($this->_table, $data);
 
 		// Execute callback after update
 		$this->_run_callbacks('after', 'update', array($data, $result));
@@ -394,7 +394,7 @@ class MY_Model extends CI_Model {
 			return FALSE;
 
 		// Insert data
-		$this->db->insert($this->get_table(), $data);
+		$this->db->insert($this->_table, $data);
 
 		// Execute callback after insert
 		$this->_run_callbacks('after', 'insert', array($data, $this->db->insert_id()));
@@ -430,7 +430,7 @@ class MY_Model extends CI_Model {
 		return $this->db
 			->set($field, $field .' + 1', FALSE)
 			->where($where)
-			->update($this->get_table());
+			->update($this->_table);
 	}
 
 	// --------------------------------------------------------------------------
