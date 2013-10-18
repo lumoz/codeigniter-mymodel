@@ -36,6 +36,7 @@ This is my base model that extends CI_Model and is extended from other Model.
 - `gets` Select (all) items from clause
 - `get_table` Return table name
 - `get_primary_key` Return primary key table field
+- `set_primary_key` Set the primary key table field
 - `set_alias` Set table alias
 - `get_alias` Get table alias
 - `delete` Delete current assigned item

@@ -4,7 +4,7 @@
  * Base model to extends default CI Model
  * @author	Luigi Mozzillo <luigi@innato.it>
  * @link	http://innato.it
- * @version	1.6.1
+ * @version	1.6.2
  * @extends CI_Model
  *
  * This program is free software: you can redistribute it and/or modify
@@ -111,7 +111,7 @@ class MY_Model extends CI_Model {
 	public function exists() {
 		if (empty($this->_id))
 			return FALSE;
-		$this->db->select($this->_primary_key);
+		$this->db->select($this->get_primary_key());
 		$res = $this->get();
 		return ! empty($res);
 	}
@@ -126,11 +126,11 @@ class MY_Model extends CI_Model {
 	 * @return boolean
 	 */
 	public function assign_by($where, $escape = TRUE) {
-		$this->db->select($this->_primary_key);
+		$this->db->select($this->get_primary_key());
 		$row = $this->get_by($where, $escape = TRUE);
 		$this->assign(
-			isset($row->{$this->_primary_key})
-				? $row->{$this->_primary_key}
+			isset($row->{$this->get_primary_key()})
+				? $row->{$this->get_primary_key()}
 				: 0
 		);
 		return $this->assigned();
@@ -145,7 +145,7 @@ class MY_Model extends CI_Model {
 	 */
 	public function get() {
 		return $this->get_by(array(
-			$this->_primary_key => $this->_id
+			$this->get_primary_key() => $this->_id
 		));
 	}
 
@@ -211,10 +211,25 @@ class MY_Model extends CI_Model {
 	/**
 	 * Return primary key table field.
 	 *
+	 * @param  boolean $exclude_alias
 	 * @return string
 	 */
-	public function get_primary_key() {
-		return $this->_primary_key;
+	public function get_primary_key($exclude_alias = FALSE) {
+		return $exclude_alias
+				? ''
+				: ($this->get_alias() ? $this->get_alias() .'.' : '')
+			. $this->_primary_key;
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Set the primary key table field.
+	 *
+	 * @param string $primary_key
+	 */
+	public function set_primary_key($primary_key) {
+		$this->_primary_key = $primary_key;
 	}
 
 	// --------------------------------------------------------------------------
@@ -235,10 +250,12 @@ class MY_Model extends CI_Model {
 	/**
 	 * Get table alias.
 	 *
+	 * @param  mixed  $field
 	 * @return string
 	 */
-	public function get_alias() {
-		return $this->_table_alias;
+	public function get_alias($field = NULL) {
+		return $this->_table_alias
+			. (is_null($field) ? '' : ( ! is_null($this->_table_alias) ? '.': '') . $field);
 	}
 
 	// --------------------------------------------------------------------------
@@ -320,7 +337,7 @@ class MY_Model extends CI_Model {
 		$result = $this->db
 			->where($where)
   			->delete($this->_table);
-		$this->_run_callbacks('after', 'delete', array($where, $result));
+  		$this->_run_callbacks('after', 'delete', array($where, $result));
 		return $result;
 	}
 
@@ -413,7 +430,7 @@ class MY_Model extends CI_Model {
 	 */
 	public function increase($field) {
 		return $this->increase_by($field, array(
-			$this->_primary_key => $this->_id
+			$this->get_primary_key() => $this->_id
 		));
 	}
 
@@ -445,7 +462,7 @@ class MY_Model extends CI_Model {
 	 */
 	public function unique($field, $value) {
 		if ($this->assigned()) {
-			$this->db->where($this->_primary_key  .' != ', $this->_id);
+			$this->db->where($this->get_primary_key()  .' != ', $this->_id);
 		}
 		return ! $this->count(array(
 			$field => $value
@@ -506,10 +523,10 @@ class MY_Model extends CI_Model {
 	 * @param integer $page
 	 * @param string  $select
 	 */
-	public function set_pagination($per_page, $page = 1, $select = '*') {
+	public function set_pagination($per_page, $page = 1, $select = NULL) {
 
 		// Add calc_found_rows to query
-		$select = 'SQL_CALC_FOUND_ROWS '. $select;
+		$select = 'SQL_CALC_FOUND_ROWS '. (is_null($select) ? $this->get_alias('*') : $select);
 		array_unshift($this->db->ar_select, $select);
 		$key = array_search($select, $this->db->ar_select);
 		$this->db->ar_no_escape[$key] = FALSE;
